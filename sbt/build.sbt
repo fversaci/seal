@@ -33,7 +33,8 @@ autoScalaLibrary := false
 ////////////////////////////////////////
 // imports
 import sbt.Package.ManifestAttributes
-import it.crs4.tools.avsc2java.makeSources
+import it.crs4.tools.avsc2java
+import it.crs4.tools.avdl2java
 import it.crs4.tools.promptHadoop
 
 lazy val hadoopVersion = Option(System.getProperty("hadoop.version")).getOrElse(defaultHadoopVersion)
@@ -99,10 +100,17 @@ excludeDependencies ++= Seq(
 )
 
 ////////////////////////////////////////
+// generate java classes from AVDL
+sourceGenerators in Compile += Def.task {
+  avdl2java.run((sourceManaged in Compile).value / "avdl", (sourceManaged in Compile).value / "schemas")
+}.taskValue
+
+////////////////////////////////////////
 // generate java classes from avro schemas
 sourceGenerators in Compile += Def.task {
-  makeSources((sourceManaged in Compile).value / "")
+  avsc2java.run((sourceManaged in Compile).value / "schemas-2")
 }.taskValue
+
 
 lazy val junit2 = "com.novocode" % "junit-interface" % "0.11"
 
